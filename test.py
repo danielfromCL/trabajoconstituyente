@@ -16,27 +16,49 @@ import PySimpleGUI as sg
     The selection wraps around from the end to the start (and vicea versa). You can change this behavior to
         make it stay at the beignning or the end
     Copyright 2021 PySimpleGUI
-"""
+
+
+    - Autocompletado onput listo
+    TODO:
+    Almacenar el input ya autocompletado  en un variable. Primero un enter para confirmar el valir del dropdown y un enter despues para almacnera el valro en una varibale
+    verificar si el valor cumple las restricciones
+    
+    """
 
 
 def main():
     # The list of choices that are going to be searched
     # In this example, the PySimpleGUI Element names are used
-    choices = sorted([elem.__name__ for elem in sg.Element.__subclasses__()])
+    choices = ["Tom", "Cebolla", "Poto", "Cholo", "Tomate", "Tetera"] # ACA TIENE QUE IR UNA LISTA CON LOS CONSTITUYENTES
 
     input_width = 100                #El ancho de la caja del input
     num_items_to_show = 6            #Cantidad de valores en el dropdown [predictions]
 
     layout = [
-        [sg.Text('Seleccione Constituyente:')],
+        [sg.Text('Usted está trabajando en la comisión 1: La de salud')],
+
+        [sg.Text('Seleccione Constituyente Patrocinad@:')],
         [sg.Input(size=(input_width, 1), enable_events=True, key='-IN-')],
+
+        [sg.pin(sg.Col([[sg.Listbox(values=[], size=(input_width, num_items_to_show), enable_events=True, key='-BOX-',
+                                    select_mode=sg.LISTBOX_SELECT_MODE_SINGLE, no_scrollbar=True)]],
+                       key='-BOX-CONTAINER-', pad=(0, 0), visible=False     #La caja donde se muestra dropdown es el BOX CONTAINER
+                       )
+                       )],
+
+        [sg.Text('Seleccione Constituyente Patrocinador:')],
+        [sg.Input(size=(input_width, 1), enable_events=True, key='-IN_A-')],
 
         #La caja donde se muestra dropdown es el BOX CONTAINER
         [sg.pin(sg.Col([[sg.Listbox(values=[], size=(input_width, num_items_to_show), enable_events=True, key='-BOX-',
                                     select_mode=sg.LISTBOX_SELECT_MODE_SINGLE, no_scrollbar=True)]],
-                       key='-BOX-CONTAINER-', pad=(0, 0), visible=True     #La caja donde se muestra dropdown es el BOX CONTAINER
+                       key='-BOX-CONTAINER-', pad=(0, 0), visible=False     #La caja donde se muestra dropdown es el BOX CONTAINER
                        )
-                       )]
+                       )],
+
+
+
+        [sg.Button("POTO")]
             ]
 
     window = sg.Window('Preoceso de selección de comisiones', layout, return_keyboard_events=True, finalize=True, font= ('Helvetica', 16))
@@ -68,6 +90,7 @@ def main():
             sel_item = (sel_item + (len(prediction_list) - 1)) % len(prediction_list)
             list_element.update(set_to_index=sel_item, scroll_to_index=sel_item)
         elif event == '\r':
+            print("POTO")
             if len(values['-BOX-']) > 0:
                 window['-IN-'].update(value=values['-BOX-'])
                 window['-BOX-CONTAINER-'].update(visible=False)
@@ -94,6 +117,7 @@ def main():
             else:
                 window['-BOX-CONTAINER-'].update(visible=False)
         elif event == '-BOX-':
+            print("Aca se esta haciendoo el enter")
             window['-IN-'].update(value=values['-BOX-'])
             window['-BOX-CONTAINER-'].update(visible=False)
     window.close()
