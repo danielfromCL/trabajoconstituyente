@@ -24,22 +24,33 @@ def main():
     # In this example, the PySimpleGUI Element names are used
     choices = sorted([elem.__name__ for elem in sg.Element.__subclasses__()])
 
-    input_width = 20
-    num_items_to_show = 4
+    input_width = 100                #El ancho de la caja del input
+    num_items_to_show = 6            #Cantidad de valores en el dropdown [predictions]
 
     layout = [
-        [sg.CB('Ignore Case', k='-IGNORE CASE-')],
-        [sg.Text('Input PySimpleGUI Element Name:')],
+        [sg.Text('Seleccione Constituyente:')],
         [sg.Input(size=(input_width, 1), enable_events=True, key='-IN-')],
+
+        #La caja donde se muestra dropdown es el BOX CONTAINER
         [sg.pin(sg.Col([[sg.Listbox(values=[], size=(input_width, num_items_to_show), enable_events=True, key='-BOX-',
                                     select_mode=sg.LISTBOX_SELECT_MODE_SINGLE, no_scrollbar=True)]],
-                       key='-BOX-CONTAINER-', pad=(0, 0), visible=False))]
+                       key='-BOX-CONTAINER-', pad=(0, 0), visible=True     #La caja donde se muestra dropdown es el BOX CONTAINER
+                       )
+                       )]
             ]
 
-    window = sg.Window('AutoComplete', layout, return_keyboard_events=True, finalize=True, font= ('Helvetica', 16))
+    window = sg.Window('Preoceso de selección de comisiones', layout, return_keyboard_events=True, finalize=True, font= ('Helvetica', 16))
 
     list_element:sg.Listbox = window.Element('-BOX-')           # store listbox element for easier access and to get to docstrings
     prediction_list, input_text, sel_item = [], "", 0
+
+
+
+
+
+    # IN lo que se esta escribiendo
+    # Ignore Case parte en false
+    # BOX la cajita negra para seleccionar el nombre
 
     while True:  # Event Loop
         event, values = window.read()
@@ -48,7 +59,7 @@ def main():
             break
         # pressing down arrow will trigger event -IN- then aftewards event Down:40
         elif event.startswith('Escape'):
-            window['-IN-'].update('')
+            window['-IN-'].update('')        
             window['-BOX-CONTAINER-'].update(visible=False)
         elif event.startswith('Down') and len(prediction_list):
             sel_item = (sel_item + 1) % len(prediction_list)
@@ -61,17 +72,18 @@ def main():
                 window['-IN-'].update(value=values['-BOX-'])
                 window['-BOX-CONTAINER-'].update(visible=False)
         elif event == '-IN-':
-            text = values['-IN-'] if not values['-IGNORE CASE-'] else values['-IN-'].lower()
+            print(values)
+            text = values['-IN-'].lower()
             if text == input_text:
                 continue
             else:
                 input_text = text
             prediction_list = []
             if text:
-                if values['-IGNORE CASE-']:
-                    prediction_list = [item for item in choices if item.lower().startswith(text)]
-                else:
-                    prediction_list = [item for item in choices if item.startswith(text)]
+                #if values['-IGNORE CASE-']:
+                prediction_list = [item for item in choices if item.lower().startswith(text)]
+                #else:
+                #    prediction_list = [item for item in choices if item.startswith(text)]
 
             list_element.update(values=prediction_list)
             sel_item = 0
@@ -84,7 +96,6 @@ def main():
         elif event == '-BOX-':
             window['-IN-'].update(value=values['-BOX-'])
             window['-BOX-CONTAINER-'].update(visible=False)
-
     window.close()
 
 
