@@ -4,6 +4,15 @@ import numpy
 import pandas as pd
 from openpyxl import load_workbook
 import math
+import sys
+import os.path
+
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+
+
+
 
 #Constituyente que patrocina
 iNombre = 0
@@ -22,8 +31,9 @@ iVicepresidencias = 9
 NombreReglamento = [iNombre, iReglamento]
 
 
-fnDatos = r'C:\Users\Joaquin\Desktop\Constituyente\trabajoconstituyente\Datos.xlsx'
-fnDatosPrueba = r'C:\Users\Joaquin\Desktop\Constituyente\trabajoconstituyente\DatosPrueba.xlsx'
+fnDatos = r'Datos.xlsx'
+
+fnDatosPrueba = r'DatosPrueba.xlsx'
 
 PatrocinadoresDeComisionReglamento = pd.read_excel(fnDatos, usecols=NombreReglamento)
 
@@ -141,7 +151,6 @@ while(True):
     patrocinadorUsuario = input("Ingrese nombre constituyente patrocinador: ")
 
     patrocinadoUsuario = input("Ingrese nombre constituyente patrocinado: ")
-
 
     IngresarPatrocinio(patrocinadorUsuario, patrocinadoUsuario)
 
