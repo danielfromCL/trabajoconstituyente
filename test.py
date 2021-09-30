@@ -34,6 +34,8 @@ def main():
     input_width = 100                #El ancho de la caja del input
     num_items_to_show = 6            #Cantidad de valores en el dropdown [predictions]
 
+    output = None
+    output_2 = None
     layout = [
         [sg.Text('Usted está trabajando en la comisión 1: La de salud')],
 
@@ -47,23 +49,33 @@ def main():
                        )],
 
         [sg.Text('Seleccione Constituyente Patrocinador:')],
-        [sg.Input(size=(input_width, 1), enable_events=True, key='-IN_A-')],
+        [sg.Input(size=(input_width, 1), enable_events=True, key='-IN-2-')],
 
-        #La caja donde se muestra dropdown es el BOX CONTAINER
-        [sg.pin(sg.Col([[sg.Listbox(values=[], size=(input_width, num_items_to_show), enable_events=True, key='-BOX-',
+        [sg.pin(sg.Col([[sg.Listbox(values=[], size=(input_width, num_items_to_show), enable_events=True, key='-BOX-2-',
                                     select_mode=sg.LISTBOX_SELECT_MODE_SINGLE, no_scrollbar=True)]],
-                       key='-BOX-CONTAINER-', pad=(0, 0), visible=False     #La caja donde se muestra dropdown es el BOX CONTAINER
+                       key='-BOX-CONTAINER-2-', pad=(0, 0), visible=False     #La caja donde se muestra dropdown es el BOX CONTAINER
                        )
                        )],
+        
+
+        #La caja donde se muestra dropdown es el BOX CONTAINER
+        
 
 
 
-        [sg.Button("POTO")]
-            ]
+        [sg.Button("Enviar", key = "-SEND-")],
+
+
+        [sg.pin(sg.Col([[sg.Text('Hola', key = "-output-")]],
+                        key='-BOX-CONTAINER-3-', pad=(0, 0), visible=False)
+                       )]
+        ]
+        
 
     window = sg.Window('Preoceso de selección de comisiones', layout, return_keyboard_events=True, finalize=True, font= ('Helvetica', 16))
 
     list_element:sg.Listbox = window.Element('-BOX-')           # store listbox element for easier access and to get to docstrings
+    list_element_2:sg.Listbox = window.Element('-BOX-2-') 
     prediction_list, input_text, sel_item = [], "", 0
 
 
@@ -79,21 +91,51 @@ def main():
         # print(event, values)
         if event == sg.WINDOW_CLOSED:
             break
-        # pressing down arrow will trigger event -IN- then aftewards event Down:40
+        # pressing down arrow will trigger event -IN- then aftewards event Down:40 
         elif event.startswith('Escape'):
             window['-IN-'].update('')        
             window['-BOX-CONTAINER-'].update(visible=False)
+            window['-IN-2-'].update('')        
+            window['-BOX-CONTAINER-2-'].update(visible=False)
+        # Posible feature? Con escape se borra todos los inpus (1 y 2)
+
+
+            
         elif event.startswith('Down') and len(prediction_list):
             sel_item = (sel_item + 1) % len(prediction_list)
             list_element.update(set_to_index=sel_item, scroll_to_index=sel_item)
+            list_element_2.update(set_to_index=sel_item, scroll_to_index=sel_item)
+        # Revisar!!!
+
+        
         elif event.startswith('Up') and len(prediction_list):
             sel_item = (sel_item + (len(prediction_list) - 1)) % len(prediction_list)
             list_element.update(set_to_index=sel_item, scroll_to_index=sel_item)
-        elif event == '\r':
-            print("POTO")
+            list_element_2.update(set_to_index=sel_item, scroll_to_index=sel_item)
+        # Revisar !!!
+
+
+        # Borramos evento   event == '\r'    de enter para evitar bugs
+        elif (event == '-BOX-'):
             if len(values['-BOX-']) > 0:
                 window['-IN-'].update(value=values['-BOX-'])
+                print("Aca se esta haciendoo el enter")
+                output = values['-BOX-']
+                print(output)
                 window['-BOX-CONTAINER-'].update(visible=False)
+        #output 
+
+        elif (event == '-BOX-2-'):
+            if len(values['-BOX-2-']) > 0:
+
+                window['-IN-2-'].update(value=values['-BOX-2-'])
+                print("Aca se esta haciendoo el enter2")
+                output_2 = values['-BOX-2-']
+                print(output_2)
+                window['-BOX-CONTAINER-2-'].update(visible=False)
+
+
+                
         elif event == '-IN-':
             print(values)
             text = values['-IN-'].lower()
@@ -116,10 +158,55 @@ def main():
                 window['-BOX-CONTAINER-'].update(visible=True)
             else:
                 window['-BOX-CONTAINER-'].update(visible=False)
-        elif event == '-BOX-':
-            print("Aca se esta haciendoo el enter")
-            window['-IN-'].update(value=values['-BOX-'])
-            window['-BOX-CONTAINER-'].update(visible=False)
+
+        elif event == '-IN-2-':
+            print(values)
+            text = values['-IN-2-'].lower()
+            if text == input_text:
+                continue
+            else:
+                input_text = text
+            prediction_list = []
+            if text:
+                #if values['-IGNORE CASE-']:
+                prediction_list = [item for item in choices if item.lower().startswith(text)]
+                #else:
+                #    prediction_list = [item for item in choices if item.startswith(text)]
+
+            list_element_2.update(values=prediction_list)
+            sel_item = 0
+            list_element_2.update(set_to_index=sel_item)
+
+            if len(prediction_list) > 0:
+                window['-BOX-CONTAINER-2-'].update(visible=True)
+            else:
+                window['-BOX-CONTAINER-2-'].update(visible=False)
+
+        elif event == '-SEND-':
+            
+            if (output == None):
+                print("Falta rellenar al Patrocinado")
+
+            if (output_2==None):
+                print("Falta rellenar al Patrocinador")
+
+            elif (output[0] and output_2[0] ):
+                window["-output-"].update("pepepep")
+                window['-BOX-CONTAINER-3-'].update(visible=True)
+
+
+            #AQUI CHEQUEAR Y ENVIAR DATOS
+
+                window['-IN-'].update('')        
+                window['-IN-2-'].update('')     
+                window['-BOX-'].update('')   
+                window['-BOX-2-'].update('')   
+            #elif (output[0] == 'Tom'):
+            #    print("Falta ASASA")
+            #elif CONDICION DEL MODELO
+                
+
+        
     window.close()
 
 
