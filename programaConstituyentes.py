@@ -1,5 +1,4 @@
-
-from numpy import NAN, NaN, nan, string_
+from numpy import string_
 import numpy
 import pandas as pd
 from openpyxl import load_workbook
