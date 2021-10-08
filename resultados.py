@@ -47,9 +47,6 @@ def patrocinios(nombre,arr):
     for llave in a:
         if b == len(a)-1:
             respuesta += llave +' \n \n'
-        elif b %9 == 0:
-            respuesta += '\n ' + llave + ', '
-            b+=1
         else:
             respuesta += llave + ', '
             b+=1
@@ -78,9 +75,6 @@ def cantidadpatrocinadores(orderedPatrocinados):
         for llaveB in orderedPatrocinados[llave]:
             if b == len(orderedPatrocinados[llave])-1:
                 respuesta += llaveB + ' \n \n'
-            elif b %9 == 0:
-                respuesta += '\n ' + llaveB + ', '
-                b+=1
             else:
                 respuesta += llaveB + ', '
                 b+=1
