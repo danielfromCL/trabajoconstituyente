@@ -42,14 +42,14 @@ def patrocinios(nombre,arr):
 
     a = patrocinadoresDe(nombre,arr)
 
-    respuesta = "El/la constituyente "+ nombre +" está siendo patrocinado por "+ str(len(a)) +" personas: "
+    respuesta = "El/la constituyente "+ nombre +" está siendo patrocinado por "+ str(len(a)) +" personas: \n"
     b =0
     for llave in a:
-        if b %9 == 0:
+        if b == len(a)-1:
+            respuesta += llave +' \n \n'
+        elif b %9 == 0:
             respuesta += '\n ' + llave + ', '
             b+=1
-        elif b == len(a)-1:
-            respuesta += llave
         else:
             respuesta += llave + ', '
             b+=1
@@ -73,14 +73,14 @@ def hacetodo():
 def cantidadpatrocinadores(orderedPatrocinados):
     lista =[]
     for llave in orderedPatrocinados:
-        respuesta = "El/la constituyente "+ llave +" está siendo patrocinado por "+ str(len(orderedPatrocinados[llave])) +" personas: "
+        respuesta = "El/la constituyente "+ llave +" está siendo patrocinado por "+ str(len(orderedPatrocinados[llave])) +" personas:  \n"
         b =0
         for llaveB in orderedPatrocinados[llave]:
-            if b %9 == 0:
+            if b == len(orderedPatrocinados[llave])-1:
+                respuesta += llaveB + ' \n \n'
+            elif b %9 == 0:
                 respuesta += '\n ' + llaveB + ', '
                 b+=1
-            elif b == len(orderedPatrocinados[llave])-1:
-                respuesta += llaveB
             else:
                 respuesta += llaveB + ', '
                 b+=1
@@ -145,7 +145,7 @@ def main():
     #choices = ["Tom", "Cebolla", "Poto", "Cholo", "Tomate", "Tetera"] # ACA TIENE QUE IR UNA LISTA CON LOS CONSTITUYENTES
     choices = choicesConstituyentes
 
-    input_width = 75                #El ancho de la caja del input
+    input_width = 120                #El ancho de la caja del input
     num_items_to_show = 6            #Cantidad de valores en el dropdown [predictions]
 
     output = None
@@ -184,7 +184,7 @@ def main():
                        )],]
     layout+=re    
     ''' 
-    window = sg.Window('Preoceso de selección de comisiones', layout, return_keyboard_events=True, finalize=True, font= ('Helvetica', 16))
+    window = sg.Window('Proceso de selección de comisiones', layout, return_keyboard_events=True, finalize=True, font= ('Helvetica', 16))
 
     
 
