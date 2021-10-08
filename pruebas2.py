@@ -1,4 +1,5 @@
-from numpy import string_
+
+from numpy import NAN, NaN, nan, string_
 import numpy
 import pandas as pd
 from openpyxl import load_workbook
@@ -31,7 +32,7 @@ NombreReglamento = [iNombre, iReglamento]
 
 fnDatos = r'Datos.xlsx'
 
-fnDatosPrueba = r'DatosPrueba.xlsx'
+#fnDatosPrueba = r'DatosPrueba.xlsx'
 
 PatrocinadoresDeComisionReglamento = pd.read_excel(fnDatos, usecols=NombreReglamento)
 
@@ -59,13 +60,25 @@ arrayReglamento = reglamentoDF.to_numpy()
 
 #print(arrayConstituyentes)
 
+def patrocinadoresDe(nombreConstituyente):
+    patrocinadores = []
+    patrocinador = 0
+    patrocinado = 1
+
+    for patrocinio in arrayReglamento:
+        if patrocinio[patrocinado] == nombreConstituyente:
+            patrocinadores.append(patrocinio[patrocinador])
+    
+    return patrocinadores
+
+
         
 
 
 def aQuienPatrocina(nombreConstituyente):
     patrocinador = 0
     patrocinado = 1
-    viejoDF = pd.read_excel(fnDatos, usecols=[1,2])
+    viejoDF = pd.read_excel(fnDatos, usecols=[0,1])
     arrayReglamento = viejoDF.to_numpy()
 
     for patrocinio in arrayReglamento:
@@ -74,7 +87,7 @@ def aQuienPatrocina(nombreConstituyente):
 
 def nombreValidoPatrocinador(nombreConstituyente):
     patrocinador = 0
-    viejoDF = pd.read_excel(fnDatos, usecols=[1,2])
+    viejoDF = pd.read_excel(fnDatos, usecols=[0,1])
     arrayReglamento = viejoDF.to_numpy()
 
     var = False
@@ -86,7 +99,7 @@ def nombreValidoPatrocinador(nombreConstituyente):
 
 def nombreValidoPatrocinado(nombreConstituyente):
     patrocinado = 1
-    viejoDF = pd.read_excel(fnDatos, usecols=[1,2])
+    viejoDF = pd.read_excel(fnDatos, usecols=[0,1])
     arrayReglamento = viejoDF.to_numpy()
 
     var = False
@@ -105,41 +118,19 @@ def yaPatrocino(nombreConstituyente):
     else:
         return False
 
-#Modifica el patrocinio de un constituyente patrocinador
-def modificarPatrocinio(ConstituyentePatrocinador, ConstituyentePatrocinado):
-
-    
-    viejoDF = pd.read_excel(fnDatos, usecols=[1,2])
-    viejoArr = viejoDF.to_numpy()
-    patrocinador = 0
-    patrocinado = 1
-    
-    
-    for patrocinio in viejoArr:
-        if patrocinio[patrocinador] == ConstituyentePatrocinador:
-            patrocinio[patrocinado] = ConstituyentePatrocinado
-
-    newDataFrame = pd.DataFrame(viejoArr, index = viejoDF.index, columns=viejoDF.columns)
-
-    newDataFrame.to_excel(fnDatos,sheet_name='Sheet1',startcol=0, startrow=0)
-
-    return "El patrocinio de " + ConstituyentePatrocinador + " a " + ConstituyentePatrocinado +" ha sido modificado con éxito!"
-
-
-
 def IngresarPatrocinio(ConstituyentePatrocinador, ConstituyentePatrocinado):
+
     if yaPatrocino(ConstituyentePatrocinador):
-        respuesta = "El patrocinio de " + ConstituyentePatrocinador+ " a " + ConstituyentePatrocinado + " NO se registro, ya que " + ConstituyentePatrocinador + " se encuentra patrocinando a alguien"
-        return respuesta
+        return "Este constituyente ya patrocino a alguien"
     
     elif nombreValidoPatrocinador(ConstituyentePatrocinador) == False:
-        return "Esta ingresando mal al patrocinador, revise de nuevo, ya que " + ConstituyentePatrocinador + " no está registrad@"
+        return "Este patrocinador no existe"
 
     elif nombreValidoPatrocinador(ConstituyentePatrocinado) == False:
-        return "Esta ingresando mal al constituyente patrocinado, revise de nuevo, ya que " + ConstituyentePatrocinador + " no está registrad@"
+        return "Este patrocinado no existe"
 
     else:
-        viejoDF = pd.read_excel(fnDatos, usecols=[1,2])
+        viejoDF = pd.read_excel(fnDatos, usecols=[0,1])
         viejoArr = viejoDF.to_numpy()
         patrocinador = 0
         patrocinado = 1
@@ -152,7 +143,7 @@ def IngresarPatrocinio(ConstituyentePatrocinador, ConstituyentePatrocinado):
 
         newDataFrame.to_excel(fnDatos,sheet_name='Sheet1',startcol=0, startrow=0)
 
-        return "El patrocinio de " + ConstituyentePatrocinador + " a " + ConstituyentePatrocinado +" ha sido ingresado con éxito!"
+        return "El patrocinio ha sido ingresado con éxito!"
 
 
 #while(True):
@@ -162,40 +153,6 @@ def IngresarPatrocinio(ConstituyentePatrocinador, ConstituyentePatrocinado):
   #  patrocinadoUsuario = input("Ingrese nombre constituyente patrocinado: ")
 
    # IngresarPatrocinio(patrocinadorUsuario, patrocinadoUsuario)
-
-
-#Aqui se agregan las funciones para las funcionalidades de chequeo de cantidad de patrocinadores
-
-
-
-def patrocinadoresDe(nombreConstituyente, arr):
-    
-    patrocinadores = []
-    patrocinador = 0
-    patrocinado = 1
-
-    for patrocinio in arr:
-        if patrocinio[patrocinado] == nombreConstituyente:
-            patrocinadores.append(patrocinio[patrocinador])
-    
-    return patrocinadores
-
-
-def Chequeo(patrocinado, nro_patrocinadores, escanos_reservados, nro_escanos_reservados, nro_no_reservados):
-    if patrocinado in escanos_reservados:
-        if nro_patrocinadores > nro_escanos_reservados:
-            respuesta = "OJO, "+patrocinado+" tiene "+str(nro_patrocinadores)+" patrocinadores, solo eran necesarios "+str(nro_escanos_reservados)+" patrocinios en esta comisión."
-            return respuesta 
-        else: 
-            respuesta = "Por ahora " + patrocinado + " tiene " + str(nro_patrocinadores) + " patrocinadores, en esta comisión le corresponden "+str(nro_escanos_reservados)+" patrocinadores."
-            return respuesta
-    else:
-        if nro_patrocinadores > nro_no_reservados:
-            respuesta = "OJO, " + patrocinado + " tiene " + str(nro_patrocinadores) + " patrocinadores, solo eran necesarios "+str(nro_no_reservados)+" patrocinios en esta comisión."
-            return respuesta 
-        else: 
-            respuesta = "Por ahora " + patrocinado + " tiene " + str(nro_patrocinadores) + " patrocinadores, en esta comisión le corresponden "+str(nro_no_reservados)+" patrocinadores."
-            return respuesta
 
 
 
@@ -215,8 +172,6 @@ def Chequeo(patrocinado, nro_patrocinadores, escanos_reservados, nro_escanos_res
     The selection wraps around from the end to the start (and vicea versa). You can change this behavior to
         make it stay at the beignning or the end
     Copyright 2021 PySimpleGUI
-
-
     - Autocompletado onput listo
     TODO:
     Almacenar el input ya autocompletado  en un variable. Primero un enter para confirmar el valir del dropdown y un enter despues para almacnera el valro en una varibale
@@ -230,19 +185,9 @@ def main():
     # In this example, the PySimpleGUI Element names are used
     patrocinador = 0
     patrocinado = 1
-    viejoDF = pd.read_excel(fnDatos, usecols=[1,2])
+    viejoDF = pd.read_excel(fnDatos, usecols=[0,1])
     choicesConstituyentes = []
     arrayReglamento = viejoDF.to_numpy()
-
-
-
-    nro_escanos_reservados = 5
-    nro_no_reservados = 6
-
-    
-    escanos_reservados = ["Tiare Aguilera", "Victorino Antilef", "Wilfredo Bacián","Alexis Caiguan","Rosa Catrileo","Eric Chinga","Felix Galleguillos","Isabel Godoy","Lidia González","Luis Jiménez",
-            "Francisca Linconao","Natividad Llanquileo","Elisa Loncón","Isabella Mamami","Adolfo Millabur","Fernando Tirado","Margarita Vargas"]
-
 
     for patrocinio in arrayReglamento:
         choicesConstituyentes.append(str(patrocinio[patrocinador]))
@@ -256,13 +201,7 @@ def main():
     output = None
     output_2 = None
     layout = [
-        [sg.Text('Usted está trabajando en la comisión 1: La de reglamento', size=(100, 2))],
-
-        [sg.Text('OJO, solo chequea esta caja cuando estés seguro que es necesario cambiar un patrocinio')],
-
-        [sg.Checkbox(  
-            #["Ingresar un patrocinio nuevo","Sobre-escribir un Patrocinio existente"],key='Modo', size=(100, 2))],
-            "Chequea esta caja si quieres la opción de sobre-escribir patrocinios ya ingresados", key='Modo', default=False)],
+        [sg.Text('Usted está trabajando en la comisión 1: La de salud')],
 
         [sg.Text('Seleccione Constituyente Patrocinad@:')],
         [sg.Input(size=(input_width, 1), enable_events=True, key='-IN-')],
@@ -288,15 +227,11 @@ def main():
 
 
 
-        [sg.Button("Enviar", key = "-SEND-" )],
+        [sg.Button("Enviar", key = "-SEND-")],
 
 
-        [sg.pin(sg.Col([[sg.Text('Hola', key = "-output-", justification='center')]],
+        [sg.pin(sg.Col([[sg.Text('Hola', key = "-output-")]],
                         key='-BOX-CONTAINER-3-', pad=(0, 0), visible=False)
-                       )],
-
-        [sg.pin(sg.Col([[sg.Text('Hola', key = "-chequeo-", justification='center')]],
-                        key='-BOX-CONTAINER-4-', pad=(0, 0), visible=False)
                        )]
         ]
         
@@ -317,9 +252,7 @@ def main():
 
     while True:  # Event Loop
         event, values = window.read()
-
-
-        
+        # print(event, values)
         if event == sg.WINDOW_CLOSED:
             break
         # pressing down arrow will trigger event -IN- then aftewards event Down:40 
@@ -350,9 +283,9 @@ def main():
         elif (event == '-BOX-'):
             if len(values['-BOX-']) > 0:
                 window['-IN-'].update(value=values['-BOX-'])
-                #print("Aca se esta haciendoo el enter")
+                print("Aca se esta haciendoo el enter")
                 output = values['-BOX-']
-                #print(output)
+                print(output)
                 window['-BOX-CONTAINER-'].update(visible=False)
         #output 
 
@@ -360,15 +293,15 @@ def main():
             if len(values['-BOX-2-']) > 0:
 
                 window['-IN-2-'].update(value=values['-BOX-2-'])
-                #print("Aca se esta haciendoo el enter2")
+                print("Aca se esta haciendoo el enter2")
                 output_2 = values['-BOX-2-']
-                #print(output_2)
+                print(output_2)
                 window['-BOX-CONTAINER-2-'].update(visible=False)
 
 
                 
         elif event == '-IN-':
-            #print(values)
+            print(values)
             text = values['-IN-'].lower()
             if text == input_text:
                 continue
@@ -391,7 +324,7 @@ def main():
                 window['-BOX-CONTAINER-'].update(visible=False)
 
         elif event == '-IN-2-':
-            #print(values)
+            print(values)
             text = values['-IN-2-'].lower()
             if text == input_text:
                 continue
@@ -422,29 +355,10 @@ def main():
                 print("Falta rellenar al Patrocinador")
 
             elif (output[0] and output_2[0] ):
+                respuesta = IngresarPatrocinio(output_2[0], output[0])
+                window["-output-"].update(respuesta)
+                window['-BOX-CONTAINER-3-'].update(visible=True)
 
-                modo = window.find_element('Modo')
-
-                if (modo.Get()==False):
-                    respuesta = IngresarPatrocinio(output_2[0], output[0])         #Texto que indica el cambio en el excel
-
-                else:
-                    respuesta = modificarPatrocinio(output_2[0], output[0])
-
-
-                #respuesta2 =  output[0] + " esta siendo patrocinada por " + str(len(patrocinadoresDe(output[0]))) + " personas"               #Texto que indica los patrocinios totales                  
-                viejoDF = pd.read_excel(fnDatos, usecols=[1,2])
-                viejoArr = viejoDF.to_numpy()
-
-                nro_patrocinadores = len(patrocinadoresDe(output[0], viejoArr))
-
-                respuesta2 = Chequeo(output[0], nro_patrocinadores, escanos_reservados, nro_escanos_reservados, nro_no_reservados)
-
-                window["-output-"].update(respuesta)                          #se actualiza el texto
-                window['-BOX-CONTAINER-3-'].update(visible=True)              #la caja que contiene el texto se hace visible
-
-                window["-chequeo-"].update(respuesta2)                         #se actualiza el texto de chequo
-                window['-BOX-CONTAINER-4-'].update(visible=True)           #la caja que contiene el texto de chequo se hace visible
 
             #AQUI CHEQUEAR Y ENVIAR DATOS
 
@@ -463,18 +377,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-
-
-
-        
-
-
-
-
-
-
-
-
-
