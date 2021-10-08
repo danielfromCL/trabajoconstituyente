@@ -145,11 +145,10 @@ def main():
     #choices = ["Tom", "Cebolla", "Poto", "Cholo", "Tomate", "Tetera"] # ACA TIENE QUE IR UNA LISTA CON LOS CONSTITUYENTES
     choices = choicesConstituyentes
 
-    input_width = 100                #El ancho de la caja del input
+    input_width = 75                #El ancho de la caja del input
     num_items_to_show = 6            #Cantidad de valores en el dropdown [predictions]
 
     output = None
-    output_2 = None
     layout = [
         [sg.Text('Estos son los patrocinios ingresados en la comisión 1: La de reglamento', size=(100, 2))],
 
@@ -163,19 +162,12 @@ def main():
                        )],
 
         [sg.Button("Revisar", key = "-SEND-" )],
-
         
-        
-        [sg.pin(sg.Col([[sg.Text('Hola', key = "-output-", justification='left')]],
-                        key='-BOX-CONTAINER-3-', pad=(0, 0), visible=False)
-                       )],
-
-
         [sg.Button("Revisar todos los patrocinios de esta comisión", key = "-Todos-" )],
 
-        [sg.Button("Subir", key = "subir" )],
-        [sg.Button("Bajar", key = "bajar" )], 
-
+        [sg.pin(sg.Col([[sg.Text('Hola', key = "-output-", justification='left', size=(input_width, 50))]],
+                        key='-BOX-CONTAINER-3-', pad=(0, 0), visible=False, scrollable=True)
+                       )],        
         ]
         
 
@@ -183,16 +175,15 @@ def main():
     orderedPatrocinados = hacetodo()
     largo = cantidadpatrocinadores(orderedPatrocinados)
     re=[]
-                        
+    '''
     for i in range(len(largo)):
         k1 = "-output-" + str(i) 
         k2 = "-BOX-CONTAINER-3-"  + str(i)
-        
         re += [[sg.pin(sg.Col([[sg.Text('Hola', key = k1, justification='left')]],
-                        key=k2, pad=(0, 0), visible=False)
+                        key=k2, pad=(0, 0), visible=False, scrollable=True)
                        )],]
-    layout+=[[sg.Column(re,size=(2000 ,600), pad=(0, 0), scrollable=True,
-        vertical_scroll_only=True, key = "Column")],]
+    layout+=re    
+    ''' 
     window = sg.Window('Preoceso de selección de comisiones', layout, return_keyboard_events=True, finalize=True, font= ('Helvetica', 16))
 
     
@@ -270,22 +261,9 @@ def main():
         elif event == "-Todos-":
             orderedPatrocinados = hacetodo()
             respuesta = cantidadpatrocinadores(orderedPatrocinados)
-            for i in range(len(respuesta)):
-                k1 = "-output-" + str(i) 
-                k2 = "-BOX-CONTAINER-3-"  + str(i)
-                window[k1].update(respuesta[i])                          #se actualiza el texto
-                window[k2].update(visible=True)
-
-        elif event == "bajar":
-            posicion += 4
-            
-        elif event == "subir":
-            posicion -= 4
-
-
-        window['Column'].Widget.yscroll(posicion)
-
-
+            poto = ''.join(respuesta)
+            window["-output-"].update(poto)                   #se actualiza el texto
+            window["-BOX-CONTAINER-3-"].update(visible=True)
     window.close()
 
 
