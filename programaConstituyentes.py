@@ -1,5 +1,5 @@
 from numpy import string_
-import numpy
+import numpy as np
 import pandas as pd
 from openpyxl import load_workbook
 import math
@@ -62,97 +62,39 @@ arrayReglamento = reglamentoDF.to_numpy()
         
 
 
+df_patrocinio = pd.read_excel(fnDatos, usecols=NombreReglamento)
+df_patrocinio.rename(mapper={'NOMBRE':'Patrocinadores','Reglamento':'Patrocinados'},axis=1,inplace=True)
+df_patrocinio.set_index(df_patrocinio['Patrocinadores'],inplace=True)
+df_patrocinio.drop('Patrocinadores',axis=1,inplace=True)
+def patrocinadoresDe(nombreConstituyente):
+    patrocinadores = df_patrocinio[df_patrocinio.iloc[:,0]==nombreConstituyente]
+    return list(patrocinadores.index)
 def aQuienPatrocina(nombreConstituyente):
-    patrocinador = 0
-    patrocinado = 1
-    viejoDF = pd.read_excel(fnDatos, usecols=[1,2])
-    arrayReglamento = viejoDF.to_numpy()
-
-    for patrocinio in arrayReglamento:
-        if patrocinio[patrocinador] == nombreConstituyente:
-            return patrocinio[patrocinado]
-
+    return str(list(df_patrocinio.loc[nombreConstituyente])[0])
 def nombreValidoPatrocinador(nombreConstituyente):
-    patrocinador = 0
-    viejoDF = pd.read_excel(fnDatos, usecols=[1,2])
-    arrayReglamento = viejoDF.to_numpy()
-
-    var = False
-
-    for patrocinio in arrayReglamento:
-        if patrocinio[patrocinador] == nombreConstituyente:
-            var = True
-    return var
-
+    if nombreConstituyente in df_patrocinio.index:
+        return True
+    return False
 def nombreValidoPatrocinado(nombreConstituyente):
-    patrocinado = 1
-    viejoDF = pd.read_excel(fnDatos, usecols=[1,2])
-    arrayReglamento = viejoDF.to_numpy()
-
-    var = False
-
-    for patrocinio in arrayReglamento:
-        if patrocinio[patrocinado] == nombreConstituyente:
-            var = True
-    return var
-
-
-
+    if nombreConstituyente in df_patrocinio['Patrocinados']:
+        return True
+    return False
 def yaPatrocino(nombreConstituyente):
-
-    if type(aQuienPatrocina(nombreConstituyente))==str:
+    if type(aQuienPatrocina(nombreConstituyente)) == str:
         return True
     else:
         return False
-
-#Modifica el patrocinio de un constituyente patrocinador
-def modificarPatrocinio(ConstituyentePatrocinador, ConstituyentePatrocinado):
-
-    
-    viejoDF = pd.read_excel(fnDatos, usecols=[1,2])
-    viejoArr = viejoDF.to_numpy()
-    patrocinador = 0
-    patrocinado = 1
-    
-    
-    for patrocinio in viejoArr:
-        if patrocinio[patrocinador] == ConstituyentePatrocinador:
-            patrocinio[patrocinado] = ConstituyentePatrocinado
-
-    newDataFrame = pd.DataFrame(viejoArr, index = viejoDF.index, columns=viejoDF.columns)
-
-    newDataFrame.to_excel(fnDatos,sheet_name='Sheet1',startcol=0, startrow=0)
-
-    return "El patrocinio de " + ConstituyentePatrocinador + " a " + ConstituyentePatrocinado +" ha sido modificado con éxito!"
-
-
-
 def IngresarPatrocinio(ConstituyentePatrocinador, ConstituyentePatrocinado):
     if yaPatrocino(ConstituyentePatrocinador):
-        respuesta = "El patrocinio de " + ConstituyentePatrocinador+ " a " + ConstituyentePatrocinado + " NO se registro, ya que " + ConstituyentePatrocinador + " se encuentra patrocinando a alguien"
-        return respuesta
-    
+        return "Este constituyente ya patrocino a alguien"
     elif nombreValidoPatrocinador(ConstituyentePatrocinador) == False:
-        return "Esta ingresando mal al patrocinador, revise de nuevo, ya que " + ConstituyentePatrocinador + " no está registrad@"
-
+        return "Este patrocinador no existe"
     elif nombreValidoPatrocinador(ConstituyentePatrocinado) == False:
-        return "Esta ingresando mal al constituyente patrocinado, revise de nuevo, ya que " + ConstituyentePatrocinador + " no está registrad@"
-
+        return "Este patrocinado no existe"
     else:
-        viejoDF = pd.read_excel(fnDatos, usecols=[1,2])
-        viejoArr = viejoDF.to_numpy()
-        patrocinador = 0
-        patrocinado = 1
-
-        for patrocinio in viejoArr:
-            if patrocinio[patrocinador] == ConstituyentePatrocinador:
-                patrocinio[patrocinado] = ConstituyentePatrocinado
-
-        newDataFrame = pd.DataFrame(viejoArr, index = viejoDF.index, columns=viejoDF.columns)
-
-        newDataFrame.to_excel(fnDatos,sheet_name='Sheet1',startcol=0, startrow=0)
-
-        return "El patrocinio de " + ConstituyentePatrocinador + " a " + ConstituyentePatrocinado +" ha sido ingresado con éxito!"
+        df_patrocinio.loc[ConstituyentePatrocinador] = ConstituyentePatrocinado
+        df_patrocinio.to_excel(fnDatosPrueba, sheet_name='Sheet1', startcol=0, startrow=0)
+        return "El patrocinio ha sido ingresado con éxito!"
 
 
 #while(True):
@@ -166,19 +108,6 @@ def IngresarPatrocinio(ConstituyentePatrocinador, ConstituyentePatrocinado):
 
 #Aqui se agregan las funciones para las funcionalidades de chequeo de cantidad de patrocinadores
 
-
-
-def patrocinadoresDe(nombreConstituyente, arr):
-    
-    patrocinadores = []
-    patrocinador = 0
-    patrocinado = 1
-
-    for patrocinio in arr:
-        if patrocinio[patrocinado] == nombreConstituyente:
-            patrocinadores.append(patrocinio[patrocinador])
-    
-    return patrocinadores
 
 
 def Chequeo(patrocinado, nro_patrocinadores, escanos_reservados, nro_escanos_reservados, nro_no_reservados):
@@ -197,32 +126,6 @@ def Chequeo(patrocinado, nro_patrocinadores, escanos_reservados, nro_escanos_res
             respuesta = "Por ahora " + patrocinado + " tiene " + str(nro_patrocinadores) + " patrocinadores, en esta comisión le corresponden "+str(nro_no_reservados)+" patrocinadores."
             return respuesta
 
-
-
-"""
-    Autocomplete input
-    Thank you to GitHub user bonklers for supplying to basis for this demo!
-    There are 3 keyboard characters to be aware of:
-    * Arrow up - Change selected item in list
-    * Arrow down - Change selected item in list
-    * Escape - Erase the input and start over
-    * Return/Enter - use the current item selected from the list
-    You can easily remove the ignore case option by searching for the "Irnore Case" Check box key:
-        '-IGNORE CASE-'
-    The variable "choices" holds the list of strings your program will match against.
-    Even though the listbox of choices doesn't have a scrollbar visible, the list is longer than shown
-        and using your keyboard more of it will br shown as you scroll down with the arrow keys
-    The selection wraps around from the end to the start (and vicea versa). You can change this behavior to
-        make it stay at the beignning or the end
-    Copyright 2021 PySimpleGUI
-
-
-    - Autocompletado onput listo
-    TODO:
-    Almacenar el input ya autocompletado  en un variable. Primero un enter para confirmar el valir del dropdown y un enter despues para almacnera el valro en una varibale
-    verificar si el valor cumple las restricciones
-    
-    """
 
 
 def main():
